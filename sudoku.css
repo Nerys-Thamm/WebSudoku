@@ -1,0 +1,45 @@
+/*css for sudoku board*/
+.sudoku {
+    width: 100%;
+    height: 100%;
+    border: 1px solid black;
+    border-collapse: collapse;
+    background-color: #f0f0f0;
+}
+.cell {
+    width: 25%;
+    height: 25%;
+    border: 1px solid black;
+    border-collapse: collapse;
+    background-color: #f0f0f0;
+}
+.cell:hover {
+    background-color: #c4c4c4;
+}
+.cell.selected {
+    background-color: #fdf7c1;
+}
+.cell.selected:hover {
+    background-color: #e0e0e0;
+}
+table {
+    border-collapse: collapse; 
+    font-family: Calibri, sans-serif;
+}
+colgroup {
+    border: solid medium;
+}
+tbody {
+    border: solid medium;
+}
+td {
+    border: solid thin;
+    text-align: center;
+    vertical-align: middle;
+    height: 1.4em; 
+    width: 1.4em;
+    padding: 0;
+}
+td.validPlacement {
+    background-color: #00ff22;
+}

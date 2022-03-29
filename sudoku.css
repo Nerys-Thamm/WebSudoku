@@ -28,18 +28,47 @@ table {
 }
 colgroup {
     border: solid medium;
+    border-color: #634710;
 }
 tbody {
     border: solid medium;
+    border-color: #634710;
 }
 td {
     border: solid thin;
+    border-color: #796a4b;
     text-align: center;
     vertical-align: middle;
-    height: 1.4em; 
-    width: 1.4em;
+    height: 2.4em; 
+    width: 2.4em;
     padding: 0;
 }
 td.validPlacement {
     background-color: #00ff22;
+}
+body {
+    font-family: Calibri, sans-serif;
+    font-size: 1.2em;
+    background-color:peachpuff;
+}
+.jumbotron {
+    background-color:rgb(134, 118, 103);
+    border-collapse: collapse;
+    padding: 1em;
+}
+.jumbotron h1 {
+    font-family: Calibri, sans-serif;
+    font-size: 2.5em;
+    color: #e0d1b5;
+}
+.jumbotron p {
+    font-family: Calibri, sans-serif;
+    font-size: 0.6em;
+    color: #e0d1b5;
+}
+footer {
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:60px;   /* Height of the footer */
 }

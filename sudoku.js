@@ -1,7 +1,7 @@
 var currCellID = "0-0"
 const rowlen = 9;
 const rownum = 9;
-const maxSolverIterations = 50;
+const maxSolverIterations = 100;
 
 function getSingleIndex(i, j) {
     return i * rowlen + j;
@@ -66,13 +66,19 @@ class Sudoku {
     static generateNewSudoku(clueNum) {
         let sudoku = new Sudoku();
         let clueCount = 0;
-        while (clueCount < clueNum) {
-            let i = Math.floor(Math.random() * rownum);
-            let j = Math.floor(Math.random() * rowlen);
-            if (sudoku.getCell(i, j) == 0) {
-                sudoku.setCell(i, j, Math.floor(Math.random() * 9) + 1);
-                sudoku.unmutableCells[getSingleIndex(i, j)] = false;
-                clueCount++;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                clueCount = 0
+                while (clueCount < clueNum) {
+                    let randI = Math.floor(Math.random() * 3);
+                    let randJ = Math.floor(Math.random() * 3);
+                    let randVal = Math.floor(Math.random() * 9) + 1;
+                    if (sudoku.getCell((i*3) + randI, (j*3) + randJ) == 0) {
+                        sudoku.setCell((i*3) + randI, (j*3) + randJ, randVal);
+                        sudoku.unmutableCells[getSingleIndex((i*3) + randI, (j*3) + randJ)] = false;
+                        clueCount++;
+                    }
+                }
             }
         }
         return sudoku;
@@ -156,18 +162,43 @@ class Sudoku {
                 let cellID = i + "-" + j;
                 let cell = this.getCell(i, j);
                 if (cell == 0) {
-                    document.getElementById(cellID).style.backgroundColor = "white";
+                    document.getElementById(cellID).style.backgroundColor = "OldLace";
                 } else if(!this.getCellMutableFromID(cellID)) {
-                    document.getElementById(cellID).style.backgroundColor = "lightslategray";
+                    document.getElementById(cellID).style.backgroundColor = "PaleGoldenRod";
                 } else if(this.checkValidRow(i) && this.checkValidColumn(j) && this.checkValidSubgrid(i - (i % 3), j - (j % 3))) {
-                    document.getElementById(cellID).style.backgroundColor = "green";
+                    document.getElementById(cellID).style.backgroundColor = "darkseagreen";
                 } else {
                     document.getElementById(cellID).style.backgroundColor = "red";
                 }
             }
         }
-        if(currCellID != null && currCellID != undefined && this.getCellMutableFromID(currCellID)) document.getElementById(currCellID).style.backgroundColor = "yellow";
-        else if(currCellID != null && currCellID != undefined) document.getElementById(currCellID).style.backgroundColor = "lightsteelblue";
+        if(currCellID != null && currCellID != undefined && this.getCellMutableFromID(currCellID)) document.getElementById(currCellID).style.backgroundColor = "orange";
+        else if(currCellID != null && currCellID != undefined) document.getElementById(currCellID).style.backgroundColor = "PeachPuff";
+    }
+
+    trimToClues(clueNum) {
+        var clueCount = 9;
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                clueCount = 9
+                while (clueCount > clueNum) {
+                    let randI = Math.floor(Math.random() * 3);
+                    let randJ = Math.floor(Math.random() * 3);
+                    if (this.getCell((i*3) + randI, (j*3) + randJ) != 0) {
+                        this.setCell((i*3) + randI, (j*3) + randJ, 0);
+                        this.unmutableCells[getSingleIndex((i*3) + randI, (j*3) + randJ)] = true;
+                        clueCount--;
+                    }
+                }
+                for (let k = 0; k < 3; k++) {
+                    for (let l = 0; l < 3; l++) {
+                        if (this.getCell((i*3) + k, (j*3) + l) != 0) {
+                            this.unmutableCells[getSingleIndex((i*3) + k, (j*3) + l)] = false;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -177,7 +208,7 @@ class Solver {
     static solve(sudoku, iterations) {
         if(iterations == 0) timeOut = 0
         else timeOut += 1
-        if(timeOut > 200) return false
+        if(timeOut > 2000) return false
         if(iterations > maxSolverIterations) return false;
         for (let i = 0; i < rownum; i++) {
             for (let j = 0; j < rowlen; j++) {
@@ -204,9 +235,31 @@ class Solver {
 
 
 
+function getDifficultyNum(difficulty) {
+    if (difficulty == "Easy") return 4;
+    else if (difficulty == "Medium") return 3;
+    else if (difficulty == "Hard") return 2;
+    else return 1;
+}
 
-var sudoku = Sudoku.generateNewSudoku(10);
-while(!(Solver.solve(Sudoku.copy(sudoku), 0))) { sudoku = Sudoku.generateNewSudoku(10); }
+function generateSudoku(difficulty) {
+    let numClues = getDifficultyNum(difficulty);
+    var newSudoku = Sudoku.generateNewSudoku(1);
+    while(!Solver.solve(newSudoku, 0))
+    {
+        newSudoku = Sudoku.generateNewSudoku(1)
+    }
+    newSudoku.trimToClues(numClues);
+    return newSudoku;
+}
+
+var difficulty = "Easy";
+var sudoku = generateSudoku(difficulty);
+
+
+
+generateSudoku(difficulty);
+
 
 $(document).ready(function () {
     $("td").hover(function () {
@@ -240,8 +293,7 @@ $(document).ready(function () {
         }
     });
     $("#new").click(function () {
-        sudoku = Sudoku.generateNewSudoku(10);
-        while(!(Solver.solve(Sudoku.copy(sudoku), 0))) { sudoku = Sudoku.generateNewSudoku(10); }
+        sudoku = generateSudoku(difficulty);
         sudoku.updateHTML();
         sudoku.setValidPlacementCSS();
     });
@@ -251,6 +303,13 @@ $(document).ready(function () {
         sudoku.updateHTML();
         sudoku.setValidPlacementCSS();
     });
+    $("#difficulty").click(function() {
+        let currDifficulty = document.getElementById("difficulty").innerHTML;
+        if(currDifficulty == "Difficulty: Easy") difficulty = "Medium";
+        else if(currDifficulty == "Difficulty: Medium") difficulty = "Hard";
+        else if(currDifficulty == "Difficulty: Hard") difficulty = "Easy";
+        document.getElementById("difficulty").innerHTML = "Difficulty: " + difficulty;
+    })
     sudoku.updateHTML();
     sudoku.setValidPlacementCSS();
 });
